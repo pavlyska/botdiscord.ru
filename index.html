@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BotDiscordRu - Интеграционные боты для Discord и Telegram</title>
+    <meta name="description" content="Лучшие интеграционные боты для Discord и Telegram: защита от рейдов, музыкальные боты, бекапы, загрузка видео и уведомления из GitHub. Бесплатное подключение и надежная автоматизация ваших серверов.">
+    <meta name="keywords" content="discord боты, telegram боты, антирейд, музыкальный бот, бекап сервера, tiktok скачать, github уведомления, автоматизация discord, защита сервера, боты для сообществ">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="icon" type="image/png" href="fav/favicon-96x96.png" sizes="96x96" />
+    <link rel="icon" type="image/svg+xml" href="fav/favicon.svg" />
+    <link rel="shortcut icon" href="fav/favicon.ico" />
+    <link rel="apple-touch-icon" sizes="180x180" href="fav/apple-touch-icon.png" />
+    <link rel="manifest" href="fav/site.webmanifest" />
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#eff6ff',
+                            100: '#dbeafe',
+                            200: '#bfdbfe',
+                            300: '#93c5fd',
+                            400: '#60a5fa',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            700: '#1d4ed8',
+                            800: '#1e40af',
+                            900: '#1e3a8a',
+                        },
+                        dark: {
+                            900: '#0f172a',
+                            800: '#1e293b',
+                            700: '#334155',
+                        }
+                    },
+                    animation: {
+                        'float': 'float 6s ease-in-out infinite',
+                        'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'gradient': 'gradient 8s ease infinite',
+                        'fade-in': 'fadeIn 0.8s ease-out',
+                        'slide-up': 'slideUp 0.6s ease-out'
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0px)' },
+                            '50%': { transform: 'translateY(-15px)' },
+                        },
+                        gradient: {
+                            '0%, 100%': { backgroundPosition: '0% 50%' },
+                            '50%': { backgroundPosition: '100% 50%' },
+                        },
+                        fadeIn: {
+                            '0%': { opacity: '0' },
+                            '100%': { opacity: '1' },
+                        },
+                        slideUp: {
+                            '0%': { transform: 'translateY(20px)', opacity: '0' },
+                            '100%': { transform: 'translateY(0)', opacity: '1' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 50%, #0f172a 100%);
+            background-size: 400% 400%;
+            animation: gradient 15s ease infinite;
+            color: white;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .glass-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            transition: all 0.3s ease;
+        }
+        
+        .glass-card:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(59, 130, 246, 0.5);
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+        
+        .gradient-text {
+            background: linear-gradient(90deg, #60a5fa 0%, #93c5fd 50%, #60a5fa 100%);
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            animation: gradient 3s ease infinite;
+        }
+        
+        .hero-gradient {
+            background: linear-gradient(135deg, rgba(30, 64, 175, 0.8) 0%, rgba(59, 130, 246, 0.6) 50%, rgba(96, 165, 250, 0.4) 100%);
+        }
+        
+        .particle {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(96, 165, 250, 0.1);
+            pointer-events: none;
+        }
+        
+        .neon-glow {
+            box-shadow: 0 0 20px rgba(59, 130, 246, 0.3), 0 0 40px rgba(59, 130, 246, 0.2);
+        }
+        
+        .bot-avatar {
+            position: relative;
+            border: 3px solid transparent;
+            background: linear-gradient(45deg, #3b82f6, #60a5fa, #93c5fd, #60a5fa, #3b82f6);
+            background-size: 300% 300%;
+            animation: gradient 4s ease infinite;
+            border-radius: 50%;
+            width: 80px;
+            height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .bot-avatar::after {
+            content: '';
+            position: absolute;
+            inset: -3px;
+            background: linear-gradient(45deg, #3b82f6, #60a5fa, #93c5fd, #60a5fa, #3b82f6);
+            background-size: 300% 300%;
+            border-radius: 50%;
+            z-index: -1;
+            filter: blur(10px);
+            opacity: 0.5;
+            animation: gradient 4s ease infinite;
+        }
+        
+        .scroll-indicator {
+            animation: bounce 2s infinite;
+        }
+        
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% {
+                transform: translateY(0);
+            }
+            40% {
+                transform: translateY(-10px);
+            }
+            60% {
+                transform: translateY(-5px);
+            }
+        }
+        
+        .grid-pattern {
+            background-image: 
+                linear-gradient(rgba(59, 130, 246, 0.1) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(59, 130, 246, 0.1) 1px, transparent 1px);
+            background-size: 40px 40px;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        .mobile-menu {
+            display: none;
+        }
+
+        .mobile-menu.active {
+            display: block;
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 0.5rem;
+            padding: 1rem;
+            width: 200px;
+            z-index: 100;
+        }
+
+        .mobile-menu a {
+            display: block;
+            padding: 0.5rem 0;
+            color: #cbd5e1;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .mobile-menu a:hover {
+            color: white;
+        }
+
+        @media (max-width: 768px) {
+            .text-5xl {
+                font-size: 2.5rem !important;
+            }
+            
+            .text-7xl {
+                font-size: 3rem !important;
+            }
+        }
+    </style>
+</head>
+<body class="relative">
+    <div id="particles" class="fixed inset-0 pointer-events-none z-0"></div>
+    
+    <header class="relative py-8 px-4 z-10">
+        <div class="max-w-7xl mx-auto">
+            <nav class="flex items-center justify-between mb-8">
+                <div class="flex items-center space-x-2 animate-fade-in">
+                    <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center">
+                        <i class="fas fa-robot text-white text-xl"></i>
+                    </div>
+                    <span class="text-2xl font-bold">BotDiscord<span class="text-blue-400">Ru</span></span>
+                </div>
+                
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="#" class="text-gray-300 hover:text-white transition-colors">Поддержка</a>
+                    <button onclick="document.getElementById('bots').scrollIntoView({behavior: 'smooth'})" class="px-6 py-2 bg-gradient-to-r from-blue-600 to-blue-500 rounded-lg font-semibold hover:from-blue-500 hover:to-blue-400 transition-all duration-300">
+                        Начать
+                    </button>
+                </div>
+                
+                <button id="menu-toggle" class="md:hidden text-white text-2xl">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </nav>
+            <div id="mobile-menu" class="mobile-menu">
+                <a href="#">Поддержка</a>
+                <a href="#" onclick="document.getElementById('bots').scrollIntoView({behavior: 'smooth'}); document.getElementById('mobile-menu').classList.remove('active');">Начать</a>
+            </div>
+        </div>
+    </header>
+
+    <section class="relative py-20 px-4 z-10 overflow-hidden">
+        <div class="max-w-7xl mx-auto">
+            <div class="absolute -top-20 -left-20 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl"></div>
+            <div class="absolute -bottom-20 -right-20 w-96 h-96 bg-blue-600/10 rounded-full blur-3xl"></div>
+            
+            <div class="text-center relative z-10">
+                <div class="inline-block mb-6 px-4 py-2 rounded-full glass-effect animate-slide-up">
+                    <span class="text-blue-300 text-sm font-medium">🚀 Лучшие интеграционные решения</span>
+                </div>
+                
+                <h1 class="text-5xl md:text-7xl font-bold mb-6 animate-slide-up" style="animation-delay: 0.1s">
+                    <span class="block">Интеграционные боты</span>
+                    <span class="gradient-text">для Discord & Telegram</span>
+                </h1>
+                
+                <p class="text-xl text-gray-300 max-w-3xl mx-auto mb-10 animate-slide-up" style="animation-delay: 0.2s">
+                    Мы предоставляем IT решения для безопасности и интеграции в сфере автоматизации в мессенджерах. Наши боты помогут автоматизировать ваши серверы, защитить от рейдов и значительно упростить управление сообществом.
+                </p>
+                
+                <div class="flex flex-col sm:flex-row gap-4 justify-center animate-slide-up" style="animation-delay: 0.3s">
+                    <button onclick="document.getElementById('bots').scrollIntoView({behavior: 'smooth'})" class="px-8 py-4 bg-gradient-to-r from-blue-600 to-blue-500 rounded-xl font-semibold text-lg hover:from-blue-500 hover:to-blue-400 transition-all duration-300 transform hover:-translate-y-1">
+                        <i class="fas fa-rocket mr-2"></i>Начать бесплатно
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="bots" class="relative py-20 px-4 z-10">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center mb-16 animate-slide-up">
+                <h2 class="text-4xl md:text-5xl font-bold mb-6">
+                    Наши <span class="gradient-text">Боты</span>
+                </h2>
+                <p class="text-xl text-gray-400 max-w-2xl mx-auto">
+                    Высококачественные решения для вашего Discord и Telegram сервера
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
+                <div class="glass-card rounded-2xl p-6 animate-slide-up" style="animation-delay: 0.1s">
+                    <div class="text-center mb-4">
+                        <img src="icons/1bot.png" alt="AntiRaidBot" class="w-20 h-20 rounded-full mx-auto mb-4 object-cover">
+                        <h3 class="text-xl font-bold text-white mb-2">AntiRaidBot</h3>
+                        <p class="text-gray-400 text-sm mb-4">Лучший русскоязычный бот для защиты серверов!</p>
+                    </div>
+                    <div class="space-y-3 mb-6">
+                        <div class="flex items-center text-sm">
+                            <i class="fas fa-check text-green-400 mr-2"></i>
+                            <span>Защита от рейдов</span>
+                        </div>
+                        <div class="flex items-center text-sm">
+                            <i class="fas fa-check text-green-400 mr-2"></i>
+                            <span>Черный список ролей</span>
+                        </div>
+                        <div class="flex items-center text-sm">
+                            <i class="fas fa-check text-green-400 mr-2"></i>
+                            <span>Глобальные блокировки</span>
+                        </div>
+                    </div>
+                    <a href="https://antiraidbot.ru/" target="_blank" class="block w-full text-center bg-gradient-to-r from-red-500 to-orange-500 text-white font-semibold py-3 px-4 rounded-xl hover:from-red-600 hover:to-orange-600 transition-all duration-300">
+                        Подробнее
+                    </a>
+                </div>
+
+                <div class="glass-card rounded-2xl p-6 animate-slide-up" style="animation-delay: 0.2s">
+                    <div class="text-center mb-4">
+                        <img src="icons/2bot.jpg" alt="CatCloude" class="w-20 h-20 rounded-full mx-auto mb-4 object-cover">
+                        <h3 class="text-xl font-bold text-white mb-2">CatCloude</h3>
+                        <p class="text-gray-400 text-sm mb-4">Музыкальный бот с большим количеством интеграций</p>
+                    </div>
+                    <div class="space-y-3 mb-6">
+                        <div class="flex items-center text-sm">
+                            <i class="fas fa-check text-green-400 mr-2"></i>
+                            <span>YouTube, Spotify, SoundCloud, Apple Music</span>
+                        </div>
+                        <div class="flex items-center text-sm">
+                            <i class="fas fa-check text-green-400 mr-2"></i>
+                            <span>24/7 радио</span>
+                        </div>
+                        <div class="flex items-center text-sm">
+                            <i class="fas fa-check text-green-400 mr-2"></i>
+                            <span>Плейлисты</span>
+                        </div>
+                    </div>
+                    <a href="https://bots.server-discord.com/1378095952417521804" target="_blank" class="block w-full text-center bg-gradient-to-r from-purple-500 to-pink-500 text-white font-semibold py-3 px-4 rounded-xl hover:from-purple-600 hover:to-pink-600 transition-all duration-300">
+                        Подробнее
+                    </a>
+                </div>
+
+                <div class="glass-card rounded-2xl p-6 animate-slide-up" style="animation-delay: 0.3s">
+                    <div class="text-center mb-4">
+                        <img src="icons/3bot.jpg" alt="SaveCube" class="w-20 h-20 rounded-full mx-auto mb-4 object-cover">
+                        <h3 class="text-xl font-bold text-white mb-2">SaveCube</h3>
+                        <p class="text-gray-400 text-sm mb-4">Уникальный бот для бекапов с огромным функционалом</p>
+                    </div>
+                    <div class="space-y-3 mb-6">
+                        <div class="flex items-center text-sm">
+                            <i class="fas fa-check text-green-400 mr-2"></i>
+                            <span>Возврат ролей пользователям</span>
+                        </div>
+                        <div class="flex items-center text-sm">
+                            <i class="fas fa-check text-green-400 mr-2"></i>
+                            <span>Восстановление в 1 клик</span>
+                        </div>
+                        <div class="flex items-center text-sm">
+                            <i class="fas fa-check text-green-400 mr-2"></i>
+                            <span>Облачное хранилище</span>
+                        </div>
+                    </div>
+                    <a href="https://botdiscord.ru/savecube" target="_blank" class="block w-full text-center bg-gradient-to-r from-green-500 to-teal-500 text-white font-semibold py-3 px-4 rounded-xl hover:from-green-600 hover:to-teal-600 transition-all duration-300">
+                        Подробнее
+                    </a>
+                </div>
+
+                <div class="glass-card rounded-2xl p-6 animate-slide-up" style="animation-delay: 0.4s">
+                    <div class="text-center mb-4">
+                        <img src="icons/4bot.png" alt="Tiktok Link" class="w-20 h-20 rounded-full mx-auto mb-4 object-cover">
+                        <h3 class="text-xl font-bold text-white mb-2">Tiktok Link</h3>
+                        <p class="text-gray-400 text-sm mb-4">Скачивайте видео из TikTok прямо в чате</p>
+                    </div>
+                    <div class="space-y-3 mb-6">
+                        <div class="flex items-center text-sm">
+                            <i class="fas fa-check text-green-400 mr-2"></i>
+                            <span>Без водяных знаков</span>
+                        </div>
+                        <div class="flex items-center text-sm">
+                            <i class="fas fa-check text-green-400 mr-2"></i>
+                            <span>Высокое качество</span>
+                        </div>
+                        <div class="flex items-center text-sm">
+                            <i class="fas fa-check text-green-400 mr-2"></i>
+                            <span>Мгновенная загрузка</span>
+                        </div>
+                    </div>
+                    <a href="https://bots.server-discord.com/1458442649311772896" target="_blank" class="block w-full text-center bg-gradient-to-r from-blue-500 to-indigo-500 text-white font-semibold py-3 px-4 rounded-xl hover:from-blue-600 hover:to-indigo-600 transition-all duration-300">
+                        Подробнее
+                    </a>
+                </div>
+
+                <div class="glass-card rounded-2xl p-6 animate-slide-up" style="animation-delay: 0.5s">
+                    <div class="text-center mb-4">
+                        <img src="icons/5bot.jpg" alt="GithubSend" class="w-20 h-20 rounded-full mx-auto mb-4 object-cover">
+                        <h3 class="text-xl font-bold text-white mb-2">GithubSend</h3>
+                        <p class="text-gray-400 text-sm mb-4">Получайте уведомления из репозиториев в Telegram</p>
+                    </div>
+                    <div class="space-y-3 mb-6">
+                        <div class="flex items-center text-sm">
+                            <i class="fas fa-check text-green-400 mr-2"></i>
+                            <span>Webhook уведомления</span>
+                        </div>
+                        <div class="flex items-center text-sm">
+                            <i class="fas fa-check text-green-400 mr-2"></i>
+                            <span>Push, PR, Issues</span>
+                        </div>
+                        <div class="flex items-center text-sm">
+                            <i class="fas fa-check text-green-400 mr-2"></i>
+                            <span>Настраиваемые события</span>
+                        </div>
+                    </div>
+                    <a href="https://t.me/githubsend_bot" target="_blank" class="block w-full text-center bg-gradient-to-r from-gray-800 to-black text-white font-semibold py-3 px-4 rounded-xl hover:from-gray-900 hover:to-black transition-all duration-300">
+                        Подробнее
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="relative py-20 px-4 z-10">
+        <div class="max-w-5xl mx-auto">
+            <div class="hero-gradient rounded-3xl p-12 text-center relative overflow-hidden">
+                <div class="absolute inset-0 grid-pattern"></div>
+                
+                <div class="relative z-10">
+                    <h2 class="text-4xl md:text-5xl font-bold mb-6">Готовы начать?</h2>
+                    <p class="text-xl text-gray-200 mb-10 max-w-3xl mx-auto">
+                        Присоединяйтесь к 1500+ серверам, которые уже используют наших ботов для автоматизации и защиты своих сообществ.
+                    </p>
+                    <button onclick="document.getElementById('bots').scrollIntoView({behavior: 'smooth'})" class="px-10 py-4 bg-white text-blue-600 rounded-xl font-bold text-lg hover:bg-blue-50 transition-all duration-300 transform hover:scale-105">
+                        <i class="fas fa-bolt mr-2"></i>Попробовать бесплатно
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="relative py-12 px-4 border-t border-gray-800/50 z-10">
+        <div class="max-w-7xl mx-auto">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div>
+                    <div class="flex items-center space-x-2 mb-6">
+                        <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center">
+                            <i class="fas fa-robot text-white text-xl"></i>
+                        </div>
+                        <span class="text-2xl font-bold">BotDiscord<span class="text-blue-400">Ru</span></span>
+                    </div>
+                    <p class="text-gray-400">
+                        Лучшие интеграционные решения для вашего сообщества Discord и Telegram.
+                    </p>
+                </div>
+                
+                <div>
+                    <h4 class="text-white font-semibold mb-6">Наши боты</h4>
+                    <ul class="space-y-3">
+                        <li><a href="https://antiraidbot.ru/" target="_blank" class="text-gray-400 hover:text-white transition-colors">AntiRaidBot</a></li>
+                        <li><a href="https://bots.server-discord.com/1378095952417521804" target="_blank" class="text-gray-400 hover:text-white transition-colors">CatCloude</a></li>
+                        <li><a href="https://botdiscord.ru/savecube" target="_blank" class="text-gray-400 hover:text-white transition-colors">SaveCube</a></li>
+                        <li><a href="https://bots.server-discord.com/1458442649311772896" target="_blank" class="text-gray-400 hover:text-white transition-colors">Tiktok Link</a></li>
+                        <li><a href="https://t.me/githubsend_bot" target="_blank" class="text-gray-400 hover:text-white transition-colors">GithubSend</a></li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="border-t border-gray-800/50 mt-8 pt-8 text-center">
+                <p class="text-gray-500 text-sm">
+                    © 2026 BotDiscordRu. Все права защищены.
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const menuToggle = document.getElementById('menu-toggle');
+            const mobileMenu = document.getElementById('mobile-menu');
+            
+            menuToggle.addEventListener('click', function() {
+                mobileMenu.classList.toggle('active');
+            });
+            
+            const particlesContainer = document.getElementById('particles');
+            
+            for (let i = 0; i < 50; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                
+                const size = Math.random() * 4 + 1;
+                const posX = Math.random() * 100;
+                const posY = Math.random() * 100;
+                const duration = Math.random() * 20 + 10;
+                const delay = Math.random() * 5;
+                
+                particle.style.width = `${size}px`;
+                particle.style.height = `${size}px`;
+                particle.style.left = `${posX}%`;
+                particle.style.top = `${posY}%`;
+                particle.style.animation = `float ${duration}s ease-in-out ${delay}s infinite`;
+                particle.style.opacity = Math.random() * 0.3 + 0.1;
+                
+                particlesContainer.appendChild(particle);
+            }
+            
+            const observerOptions = {
+                threshold: 0.1,
+                rootMargin: '0px 0px -50px 0px'
+            };
+            
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('animate-slide-up');
+                    }
+                });
+            }, observerOptions);
+            
+            document.querySelectorAll('.glass-card').forEach(card => {
+                observer.observe(card);
+            });
+        });
+    </script>
+</body>
+</html>
+

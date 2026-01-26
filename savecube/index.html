@@ -1,0 +1,782 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>SaveCube — безопасность и бэкапы Discord-сервера</title>
+  <meta name="description" content="SaveCube — Discord-бот для бэкапов сервера и защиты от подозрительной активности. Бэкапы, BackupGuard, локализация, Premium." />
+  <meta name="theme-color" content="#b58cff" />
+
+  <style>
+    :root{
+      --bg1:#f8f4ff;        /* почти белый с лёгким лавандовым */
+      --bg2:#efe7ff;        /* глубже лаванда */
+      --ink:#1b1630;        /* текст */
+      --muted:#6b6288;      /* вторичный текст */
+      --card: rgba(255,255,255,.55);
+      --stroke: rgba(110,72,255,.18);
+
+      --p1:#7a3dff;         /* фиолетовый */
+      --p2:#b48cff;         /* неон-лаванда */
+      --p3:#e6d9ff;         /* светлый блик */
+
+      --shadow: 0 22px 70px rgba(122, 61, 255, .18);
+      --shadow2: 0 10px 40px rgba(122, 61, 255, .12);
+      --radius: 22px;
+      --radius2: 28px;
+      --max: 1120px;
+    }
+
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
+    body{
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Noto Sans", "Apple Color Emoji","Segoe UI Emoji";
+      color:var(--ink);
+      background:
+        radial-gradient(1100px 500px at 50% -10%, rgba(180,140,255,.35), transparent 55%),
+        radial-gradient(900px 420px at 20% 10%, rgba(122,61,255,.14), transparent 60%),
+        radial-gradient(900px 420px at 80% 12%, rgba(122,61,255,.12), transparent 60%),
+        linear-gradient(180deg, var(--bg1), var(--bg2));
+      overflow-x:hidden;
+    }
+
+    /* мягкий “туман” */
+    .mist{
+      position:fixed; inset:-20%;
+      pointer-events:none;
+      background:
+        radial-gradient(600px 380px at 30% 35%, rgba(180,140,255,.18), transparent 60%),
+        radial-gradient(520px 360px at 70% 55%, rgba(122,61,255,.12), transparent 62%),
+        radial-gradient(520px 360px at 55% 80%, rgba(180,140,255,.14), transparent 62%);
+      filter: blur(18px);
+      opacity:.9;
+      transform: translateZ(0);
+      animation: floatMist 16s ease-in-out infinite;
+    }
+    @keyframes floatMist{
+      0%,100%{ transform: translate3d(0,0,0) scale(1); }
+      50%{ transform: translate3d(0,-18px,0) scale(1.02); }
+    }
+
+    a{ color:inherit; text-decoration:none; }
+    .wrap{ max-width:var(--max); margin:0 auto; padding: 26px 22px; }
+
+    /* ─── Topbar ─────────────────────────── */
+    .topbar{
+      position:sticky; top:0; z-index:20;
+      backdrop-filter: blur(14px);
+      background: rgba(248,244,255,.65);
+      border-bottom: 1px solid rgba(110,72,255,.12);
+    }
+    .topbar .wrap{
+      display:flex; align-items:center; justify-content:space-between;
+      gap:14px;
+    }
+
+    .brand{
+      display:flex; align-items:center; gap:10px;
+      font-weight:800;
+      letter-spacing:.2px;
+    }
+    .brand-badge{
+      width:34px; height:34px; border-radius:12px;
+      background: radial-gradient(12px 12px at 30% 30%, rgba(255,255,255,.85), rgba(255,255,255,.2)),
+                  linear-gradient(135deg, rgba(122,61,255,.95), rgba(180,140,255,.95));
+      box-shadow: 0 14px 36px rgba(122,61,255,.22);
+      position:relative;
+    }
+    .brand-badge::after{
+      content:"";
+      position:absolute; inset:-10px;
+      background: radial-gradient(circle, rgba(180,140,255,.55), transparent 60%);
+      filter: blur(10px);
+      z-index:-1;
+      pointer-events:none;
+    }
+
+    .nav{
+      display:flex; gap:14px; align-items:center;
+      color: var(--muted);
+      font-weight:650;
+    }
+    .nav a{
+      padding:10px 10px;
+      border-radius:12px;
+      transition: .18s ease;
+    }
+    .nav a:hover{
+      color: var(--ink);
+      background: rgba(180,140,255,.16);
+    }
+
+    .actions{
+      display:flex; gap:10px; align-items:center;
+    }
+
+    .btn{
+      border: 1px solid rgba(110,72,255,.18);
+      background: rgba(255,255,255,.55);
+      color: var(--ink);
+      padding: 10px 14px;
+      border-radius: 14px;
+      font-weight:750;
+      box-shadow: var(--shadow2);
+      transition: transform .12s ease, background .18s ease, border-color .18s ease;
+      display:inline-flex; align-items:center; gap:10px;
+      cursor:pointer;
+      user-select:none;
+    }
+    .btn:hover{ transform: translateY(-1px); border-color: rgba(110,72,255,.28); }
+    .btn:active{ transform: translateY(0px); }
+
+    .btn.primary{
+      border-color: rgba(122,61,255,.25);
+      background: linear-gradient(135deg, rgba(122,61,255,.96), rgba(180,140,255,.96));
+      color: white;
+      box-shadow: 0 22px 70px rgba(122,61,255,.25);
+      position:relative;
+      overflow:hidden;
+    }
+    .btn.primary::after{
+      content:"";
+      position:absolute; inset:-40%;
+      background: radial-gradient(circle at 30% 30%, rgba(255,255,255,.45), transparent 55%);
+      transform: translate3d(-10%, -10%, 0);
+      filter: blur(6px);
+      opacity:.9;
+      pointer-events:none;
+    }
+
+    /* ─── Hero ───────────────────────────── */
+    .hero{ padding: 44px 0 26px; }
+    .hero-grid{
+      display:grid;
+      grid-template-columns: 1.12fr .88fr;
+      gap: 22px;
+      align-items: center;
+    }
+
+    .kicker{
+      display:inline-flex; gap:10px; align-items:center;
+      padding: 9px 12px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.55);
+      border: 1px solid rgba(110,72,255,.16);
+      color: var(--muted);
+      font-weight:750;
+      width: fit-content;
+      box-shadow: var(--shadow2);
+    }
+    .dot{
+      width:10px; height:10px; border-radius:999px;
+      background: radial-gradient(circle, #fff, rgba(255,255,255,.2) 35%),
+                  linear-gradient(135deg, var(--p1), var(--p2));
+      box-shadow: 0 0 0 6px rgba(180,140,255,.18);
+    }
+
+    h1{
+      margin: 14px 0 10px;
+      font-size: clamp(34px, 4.1vw, 52px);
+      line-height: 1.02;
+      letter-spacing: -.6px;
+    }
+    .lead{
+      margin: 0;
+      font-size: 16.5px;
+      line-height: 1.55;
+      color: var(--muted);
+      max-width: 52ch;
+    }
+
+    .hero-cta{
+      display:flex; flex-wrap:wrap; gap:10px;
+      margin-top: 18px;
+      align-items:center;
+    }
+
+    .mini{
+      font-weight:700;
+      color: var(--muted);
+      font-size: 13.5px;
+      display:flex; gap:10px; align-items:center;
+      padding: 8px 10px;
+      border-radius: 14px;
+      background: rgba(255,255,255,.45);
+      border: 1px solid rgba(110,72,255,.12);
+    }
+    .kbd{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono","Courier New", monospace;
+      font-size: 12px;
+      padding: 6px 8px;
+      border-radius: 10px;
+      background: rgba(27,22,48,.06);
+      border: 1px solid rgba(27,22,48,.08);
+      color: rgba(27,22,48,.9);
+    }
+
+    /* “куб-карточка” справа */
+    .cube-card{
+      border-radius: var(--radius2);
+      padding: 18px;
+      background: linear-gradient(180deg, rgba(255,255,255,.62), rgba(255,255,255,.40));
+      border: 1px solid rgba(110,72,255,.16);
+      box-shadow: var(--shadow);
+      position:relative;
+      overflow:hidden;
+    }
+    .cube-card::before{
+      content:"";
+      position:absolute; inset:-60%;
+      background:
+        radial-gradient(circle at 50% 35%, rgba(180,140,255,.35), transparent 62%),
+        radial-gradient(circle at 30% 65%, rgba(122,61,255,.22), transparent 62%);
+      filter: blur(22px);
+      opacity:.9;
+      pointer-events:none;
+    }
+
+    .cube-visual{
+      position:relative;
+      display:grid; place-items:center;
+      padding: 18px 0 8px;
+      isolation:isolate;
+    }
+    .cube-visual img{
+      width: min(320px, 90%);
+      height:auto;
+      display:block;
+      filter: drop-shadow(0 28px 55px rgba(122,61,255,.23));
+      transform: translateZ(0);
+      animation: hoverCube 6s ease-in-out infinite;
+    }
+    @keyframes hoverCube{
+      0%,100%{ transform: translate3d(0,0,0) scale(1); }
+      50%{ transform: translate3d(0,-10px,0) scale(1.01); }
+    }
+
+    .cube-meta{
+      margin-top: 10px;
+      display:flex; flex-direction:column; gap:8px;
+    }
+    .pillrow{
+      display:flex; flex-wrap:wrap; gap:8px;
+    }
+    .pill{
+      padding: 8px 10px;
+      border-radius: 999px;
+      background: rgba(180,140,255,.14);
+      border: 1px solid rgba(110,72,255,.14);
+      color: rgba(27,22,48,.82);
+      font-weight:750;
+      font-size: 13px;
+    }
+
+    /* ─── Sections ───────────────────────── */
+    section{ padding: 18px 0; }
+    .grid3{
+      display:grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+    }
+
+    .grid2{
+      display:grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 14px;
+    }
+
+    .card{
+      background: linear-gradient(180deg, rgba(255,255,255,.62), rgba(255,255,255,.40));
+      border: 1px solid rgba(110,72,255,.14);
+      border-radius: var(--radius);
+      padding: 16px 16px 14px;
+      box-shadow: var(--shadow2);
+      position:relative;
+      overflow:hidden;
+    }
+    .card::after{
+      content:"";
+      position:absolute; inset:-70%;
+      background: radial-gradient(circle at 20% 20%, rgba(180,140,255,.22), transparent 60%);
+      filter: blur(18px);
+      opacity:.55;
+      pointer-events:none;
+    }
+
+    .card h3{
+      margin: 2px 0 8px;
+      font-size: 16.5px;
+      letter-spacing: -.2px;
+      position:relative;
+    }
+    .card p{
+      margin:0;
+      color: var(--muted);
+      line-height: 1.5;
+      font-size: 14.5px;
+      position:relative;
+    }
+
+    .icon{
+      width:42px; height:42px;
+      border-radius: 16px;
+      display:grid; place-items:center;
+      background: linear-gradient(135deg, rgba(122,61,255,.95), rgba(180,140,255,.95));
+      color:white;
+      box-shadow: 0 18px 46px rgba(122,61,255,.22);
+      margin-bottom: 10px;
+      position:relative;
+    }
+    .icon svg{ width:22px; height:22px; }
+
+    .section-title{
+      display:flex; align-items:flex-end; justify-content:space-between;
+      gap:12px;
+      margin: 6px 0 12px;
+    }
+    .section-title h2{
+      margin:0;
+      font-size: 22px;
+      letter-spacing: -.3px;
+    }
+    .section-title span{
+      color: var(--muted);
+      font-weight:700;
+      font-size: 13.5px;
+    }
+
+    /* ─── “Безопасность” блок ────────────── */
+    .security{
+      display:grid;
+      grid-template-columns: 1.1fr .9fr;
+      gap: 14px;
+      align-items:stretch;
+    }
+    .big{
+      padding: 18px;
+      border-radius: var(--radius2);
+    }
+    .list{
+      margin: 10px 0 0;
+      padding:0;
+      list-style:none;
+      display:flex; flex-direction:column; gap:10px;
+      position:relative;
+    }
+    .li{
+      display:flex; gap:10px; align-items:flex-start;
+      padding: 12px 12px;
+      border-radius: 16px;
+      background: rgba(255,255,255,.45);
+      border: 1px solid rgba(110,72,255,.12);
+    }
+    .check{
+      width:22px; height:22px; border-radius:8px;
+      background: rgba(122,61,255,.16);
+      border: 1px solid rgba(110,72,255,.16);
+      display:grid; place-items:center;
+      flex: 0 0 auto;
+      margin-top: 1px;
+    }
+    .check svg{ width:14px; height:14px; }
+    .li b{ display:block; margin-bottom:2px; }
+    .li small{ color: var(--muted); line-height:1.35; }
+
+    /* ─── CTA panel ─────────────────────── */
+    .cta{
+      margin-top: 8px;
+      border-radius: 30px;
+      padding: 18px;
+      background:
+        radial-gradient(600px 220px at 40% 0%, rgba(255,255,255,.38), transparent 60%),
+        linear-gradient(135deg, rgba(122,61,255,.92), rgba(180,140,255,.92));
+      color:white;
+      box-shadow: 0 28px 80px rgba(122,61,255,.25);
+      position:relative;
+      overflow:hidden;
+    }
+    .cta::after{
+      content:"";
+      position:absolute; inset:-60%;
+      background: radial-gradient(circle at 20% 30%, rgba(255,255,255,.30), transparent 60%);
+      filter: blur(14px);
+      opacity:.85;
+      pointer-events:none;
+    }
+    .cta-inner{
+      position:relative;
+      display:flex; align-items:center; justify-content:space-between;
+      gap:12px;
+      flex-wrap:wrap;
+    }
+    .cta h3{ margin:0; font-size: 18px; letter-spacing:-.2px; }
+    .cta p{ margin:0; opacity:.88; }
+
+    .btn.white{
+      background: rgba(255,255,255,.92);
+      border-color: rgba(255,255,255,.30);
+      color: rgba(27,22,48,.95);
+      box-shadow: 0 18px 56px rgba(0,0,0,.14);
+    }
+
+    /* ─── Footer ────────────────────────── */
+    footer{
+      padding: 22px 0 42px;
+      color: var(--muted);
+      font-size: 13.5px;
+    }
+    .foot{
+      display:flex; justify-content:space-between; gap:12px; flex-wrap:wrap;
+      border-top: 1px solid rgba(110,72,255,.12);
+      padding-top: 16px;
+    }
+
+    /* ─── Responsive ────────────────────── */
+    @media (max-width: 920px){
+      .hero-grid{ grid-template-columns: 1fr; }
+      .security{ grid-template-columns: 1fr; }
+      .grid3{ grid-template-columns: 1fr; }
+      .grid2{ grid-template-columns: 1fr; }
+      .nav{ display:none; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="mist" aria-hidden="true"></div>
+
+  <!-- ───────────────────────────────────────────────────────────── -->
+  <header class="topbar">
+    <div class="wrap">
+      <a class="brand" href="#top">
+        <span class="brand-badge" aria-hidden="true"></span>
+        <span>SaveCube</span>
+      </a>
+
+      <nav class="nav" aria-label="Навигация">
+        <a href="#features">Возможности</a>
+        <a href="#security">Безопасность</a>
+        <a href="#premium">Premium</a>
+        <a href="#forwho">Для кого</a>
+      </nav>
+
+      <div class="actions">
+        <button class="btn" id="copyCmd" title="Скопировать команду">
+          <span>Команда</span>
+          <span class="kbd">/backup</span>
+        </button>
+        <a class="btn primary" href="#invite">
+          <span>Добавить бота</span>
+          <span aria-hidden="true">→</span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- ───────────────────────────────────────────────────────────── -->
+  <main id="top" class="wrap">
+    <section class="hero">
+      <div class="hero-grid">
+        <div>
+          <div class="kicker">
+            <span class="dot" aria-hidden="true"></span>
+            <span>Бэкапы • Защита • Удобство</span>
+          </div>
+
+          <h1>
+            Бэкапни сервер.<br/>
+            Защити от абуза.<br/>
+            Спи спокойно.
+          </h1>
+
+          <p class="lead">
+            <b>SaveCube</b> — Discord-бот для бэкапов сервера и защиты от подозрительной активности.
+            Сохраняй роли/каналы/категории, восстанавливай структуру и держи сервер в порядке.
+          </p>
+
+          <div class="hero-cta">
+            <a class="btn primary" href="#invite">
+              <span>Пригласить SaveCube</span> <span aria-hidden="true">✨</span>
+            </a>
+            <a class="btn" href="#features">
+              <span>Посмотреть возможности</span> <span aria-hidden="true">↓</span>
+            </a>
+
+            <div class="mini" title="Скопируй, чтобы быстро начать">
+              <span>Быстрый старт:</span>
+              <span class="kbd">/backup create</span>
+            </div>
+          </div>
+        </div>
+
+        <aside class="cube-card" aria-label="Визуальный блок">
+          <div class="cube-visual">
+            <!-- Замени путь на свою аватарку -->
+            <img src="assets/cube.png" alt="SaveCube — неоновый куб" />
+          </div>
+
+          <div class="cube-meta">
+            <div class="pillrow">
+              <span class="pill">BackupGuard</span>
+              <span class="pill">Бэкапы</span>
+              <span class="pill">i18n</span>
+              <span class="pill">Premium</span>
+            </div>
+            <div class="pillrow">
+              <span class="pill">Фокус: безопасность</span>
+              <span class="pill">Фокус: удобство</span>
+            </div>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <!-- ───────────────────────────────────────────────────────────── -->
+    <section id="features">
+      <div class="section-title">
+        <h2>Основные возможности</h2>
+        <span>всё важное — в одном кубе</span>
+      </div>
+
+      <div class="grid3">
+        <article class="card">
+          <div class="icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none">
+              <path d="M7 7h10v10H7z" stroke="white" stroke-width="2" />
+              <path d="M7 7l5 3 5-3" stroke="white" stroke-width="2" />
+              <path d="M12 10v7" stroke="white" stroke-width="2" />
+            </svg>
+          </div>
+          <h3>Бэкапы сервера</h3>
+          <p>
+            Сохранение и восстановление ролей, каналов, категорий и части настроек —
+            быстро и предсказуемо.
+          </p>
+        </article>
+
+        <article class="card">
+          <div class="icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none">
+              <path d="M12 2l8 4v6c0 5-3.5 9-8 10-4.5-1-8-5-8-10V6l8-4z" stroke="white" stroke-width="2"/>
+              <path d="M9 12l2 2 4-4" stroke="white" stroke-width="2"/>
+            </svg>
+          </div>
+          <h3>BackupGuard</h3>
+          <p>
+            Отслеживание подозрительной активности: массовые бэкапы/спам по серверам,
+            ручное подтверждение, блокировки.
+          </p>
+        </article>
+
+        <article class="card">
+          <div class="icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none">
+              <path d="M7 17l10-10" stroke="white" stroke-width="2"/>
+              <path d="M7 7h4v4H7z" stroke="white" stroke-width="2"/>
+              <path d="M13 13h4v4h-4z" stroke="white" stroke-width="2"/>
+            </svg>
+          </div>
+          <h3>Панель управления</h3>
+          <p>
+            Удобные кнопки и понятные статусы: сохранить, восстановить и контролировать процесс.
+          </p>
+        </article>
+      </div>
+    </section>
+
+    <!-- ───────────────────────────────────────────────────────────── -->
+    <section id="premium">
+      <div class="section-title">
+        <h2>Premium</h2>
+        <span>больше скорости и возможностей</span>
+      </div>
+
+      <div class="grid3">
+        <article class="card">
+          <h3>FREE</h3>
+          <p>Базовый бэкап и восстановление. Подходит для небольших серверов и тестов.</p>
+        </article>
+
+        <article class="card">
+          <h3>PLUS</h3>
+          <p>Комфортный режим: меньше ограничений и быстрее работа на активных серверах.</p>
+        </article>
+
+        <article class="card">
+          <h3>LIMITLESS</h3>
+          <p>Максимум возможностей для больших проектов: приоритет и расширенные лимиты.</p>
+        </article>
+      </div>
+
+      <div class="cta" style="margin-top:14px;">
+        <div class="cta-inner">
+          <div>
+            <h3>Хочешь Premium?</h3>
+            <p>Купить подписку можно напрямую:</p>
+          </div>
+          <div style="display:flex; gap:10px; flex-wrap:wrap; position:relative;">
+            <a class="btn white" id="boostyBtn" href="#" target="_blank" rel="noopener">Boosty →</a>
+            <a class="btn white" id="patreonBtn" href="#" target="_blank" rel="noopener">Patreon →</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ───────────────────────────────────────────────────────────── -->
+    <section id="security">
+      <div class="section-title">
+        <h2>Строгость безопасности</h2>
+        <span>без “ой-ой, я случайно снёс роли”</span>
+      </div>
+
+      <div class="security">
+        <div class="card big">
+          <h3 style="margin:0 0 8px; position:relative;">Важное правило восстановления</h3>
+          <p style="margin:0; position:relative; color:var(--muted); line-height:1.55;">
+            Если требования не соблюдены — восстановление не запустится.
+          </p>
+
+          <ul class="list">
+            <li class="li">
+              <div class="check" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none">
+                  <path d="M6 12l4 4 8-8" stroke="rgba(122,61,255,1)" stroke-width="2"/>
+                </svg>
+              </div>
+              <div>
+                <b>Боту нужен Administrator</b>
+                <small>Иначе Discord не даст восстановить права и структуру.</small>
+              </div>
+            </li>
+
+            <li class="li">
+              <div class="check" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none">
+                  <path d="M6 12l4 4 8-8" stroke="rgba(122,61,255,1)" stroke-width="2"/>
+                </svg>
+              </div>
+              <div>
+                <b>Роль бота должна быть выше ролей</b>
+                <small>Иначе часть изменений не применится.</small>
+              </div>
+            </li>
+
+            <li class="li">
+              <div class="check" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none">
+                  <path d="M6 12l4 4 8-8" stroke="rgba(122,61,255,1)" stroke-width="2"/>
+                </svg>
+              </div>
+              <div>
+                <b>BackupGuard</b>
+                <small>Остановит подозрительную активность и защитит от абуза.</small>
+              </div>
+            </li>
+          </ul>
+        </div>
+
+        <div class="card big">
+          <h3 style="margin:0 0 8px; position:relative;">Локализация</h3>
+          <p style="margin:0; position:relative; color:var(--muted); line-height:1.55;">
+            RU / EN и другие языки — удобно для международных серверов.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ───────────────────────────────────────────────────────────── -->
+    <section id="forwho">
+      <div class="section-title">
+        <h2>Для кого бот</h2>
+        <span>если ты админ/владелец — ты по адресу</span>
+      </div>
+
+      <div class="grid3">
+        <article class="card">
+          <h3>Владельцам серверов</h3>
+          <p>Быстро сохранить структуру, восстановить после “рейда” и держать всё под контролем.</p>
+        </article>
+
+        <article class="card">
+          <h3>Администраторам</h3>
+          <p>Удобные команды и предохранители от опасных действий. Меньше ручной рутины.</p>
+        </article>
+
+        <article class="card">
+          <h3>Серверам с рисками</h3>
+          <p>BackupGuard помогает пресечь подозрительную активность, пока она не стала проблемой.</p>
+        </article>
+      </div>
+
+      <div class="cta" id="invite" style="margin-top:14px;">
+        <div class="cta-inner">
+          <div>
+            <h3>Готов подключить SaveCube?</h3>
+            <p>Вставь свою invite-ссылку в кнопку (в коде ниже).</p>
+          </div>
+          <a class="btn white" id="inviteBtn" href="#" target="_blank" rel="noopener">
+            Добавить в Discord →
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <footer>
+      <div class="foot">
+        <div>© <span id="year"></span> SaveCube</div>
+        <div style="display:flex; gap:12px; flex-wrap:wrap;">
+          <a href="#features">Возможности</a>
+          <a href="#security">Безопасность</a>
+          <a href="#premium">Premium</a>
+          <a href="#top">Наверх</a>
+        </div>
+      </div>
+    </footer>
+  </main>
+
+  <script>
+    // ── сюда вставь свою invite ссылку бота ─────────────────────────
+    const INVITE_URL = "https://discord.com/oauth2/authorize?client_id=1464614111341187266&permissions=8&integration_type=0&scope=bot+applications.commands";
+    const BOOSTY_URL = "https://boosty.to/savedcube";
+    const PATREON_URL = "https://patreon.com/MVXXL";
+    // ───────────────────────────────────────────────────────────────
+
+    const inviteBtn = document.getElementById("inviteBtn");
+    inviteBtn.href = INVITE_URL;
+
+    const boostyBtn = document.getElementById("boostyBtn");
+    if(boostyBtn) boostyBtn.href = BOOSTY_URL;
+    const patreonBtn = document.getElementById("patreonBtn");
+    if(patreonBtn) patreonBtn.href = PATREON_URL;
+
+    document.getElementById("year").textContent = new Date().getFullYear();
+
+    // копирование команды
+    const copyCmd = document.getElementById("copyCmd");
+    copyCmd.addEventListener("click", async () => {
+      try{
+        await navigator.clipboard.writeText("/backup create");
+        copyCmd.innerHTML = '<span>Скопировано</span><span class="kbd">✓</span>';
+        setTimeout(() => {
+          copyCmd.innerHTML = '<span>Команда</span><span class="kbd">/backup</span>';
+        }, 1100);
+      }catch(e){
+        alert("Не смог скопировать. Скопируй вручную: /backup create");
+      }
+    });
+
+    // плавный скролл по якорям
+    document.querySelectorAll('a[href^="#"]').forEach(a => {
+      a.addEventListener("click", (ev) => {
+        const id = a.getAttribute("href");
+        if(!id || id === "#") return;
+        const el = document.querySelector(id);
+        if(!el) return;
+        ev.preventDefault();
+        el.scrollIntoView({ behavior:"smooth", block:"start" });
+      });
+    });
+  </script>
+</body>
+</html>
