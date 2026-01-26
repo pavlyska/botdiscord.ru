@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BotDiscordRu - Интеграционные боты для Discord и Telegram</title>
-    <meta name="description" content="Лучшие интеграционные боты для Discord и Telegram: защита от рейдов, музыкальные боты, бекапы, загрузка видео и уведомления из GitHub. Бесплатное подключение и надежная автоматизация ваших серверов.">
+    <title>BotDiscordRu | Интеграционные боты для Discord и Telegram</title>
+    <meta name="description" content="Лучшие боты для Discord и Telegram: защита от рейдов, музыкальные боты, бекапы, мониторинг. Мониторинг ботов Discord
     <meta name="keywords" content="discord боты, telegram боты, антирейд, музыкальный бот, бекап сервера, tiktok скачать, github уведомления, автоматизация discord, защита сервера, боты для сообществ">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -184,35 +184,6 @@
             scroll-behavior: smooth;
         }
 
-        .mobile-menu {
-            display: none;
-        }
-
-        .mobile-menu.active {
-            display: block;
-            position: absolute;
-            top: 100%;
-            right: 0;
-            background: rgba(15, 23, 42, 0.95);
-            backdrop-filter: blur(10px);
-            border-radius: 0.5rem;
-            padding: 1rem;
-            width: 200px;
-            z-index: 100;
-        }
-
-        .mobile-menu a {
-            display: block;
-            padding: 0.5rem 0;
-            color: #cbd5e1;
-            text-decoration: none;
-            transition: color 0.2s;
-        }
-
-        .mobile-menu a:hover {
-            color: white;
-        }
-
         @media (max-width: 768px) {
             .text-5xl {
                 font-size: 2.5rem !important;
@@ -238,20 +209,19 @@
                 </div>
                 
                 <div class="hidden md:flex items-center space-x-8">
-                    <a href="#" class="text-gray-300 hover:text-white transition-colors">Поддержка</a>
+                    <a href="https://discord.com/invite/t6d8u8JBuy" target="_blank" class="text-gray-300 hover:text-white transition-colors">Поддержка</a>
                     <button onclick="document.getElementById('bots').scrollIntoView({behavior: 'smooth'})" class="px-6 py-2 bg-gradient-to-r from-blue-600 to-blue-500 rounded-lg font-semibold hover:from-blue-500 hover:to-blue-400 transition-all duration-300">
                         Начать
                     </button>
                 </div>
                 
-                <button id="menu-toggle" class="md:hidden text-white text-2xl">
-                    <i class="fas fa-bars"></i>
-                </button>
+                <div class="md:hidden flex items-center space-x-4">
+                    <a href="https://discord.com/invite/t6d8u8JBuy" target="_blank" class="text-gray-300 hover:text-white transition-colors text-sm">Поддержка</a>
+                    <button onclick="document.getElementById('bots').scrollIntoView({behavior: 'smooth'})" class="px-4 py-2 bg-gradient-to-r from-blue-600 to-blue-500 rounded-lg font-semibold text-sm hover:from-blue-500 hover:to-blue-400 transition-all duration-300">
+                        Начать
+                    </button>
+                </div>
             </nav>
-            <div id="mobile-menu" class="mobile-menu">
-                <a href="#">Поддержка</a>
-                <a href="#" onclick="document.getElementById('bots').scrollIntoView({behavior: 'smooth'}); document.getElementById('mobile-menu').classList.remove('active');">Начать</a>
-            </div>
         </div>
     </header>
 
@@ -478,13 +448,6 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            const menuToggle = document.getElementById('menu-toggle');
-            const mobileMenu = document.getElementById('mobile-menu');
-            
-            menuToggle.addEventListener('click', function() {
-                mobileMenu.classList.toggle('active');
-            });
-            
             const particlesContainer = document.getElementById('particles');
             
             for (let i = 0; i < 50; i++) {

@@ -1,0 +1,5 @@
+# Сгенерировано https://pr-cy.ru/
+
+Sitemap: https://botdiscord.ru/sitemap.xml
+User-agent: *
+Allow: https://botdiscord.ru/
