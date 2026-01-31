@@ -215,11 +215,16 @@
 
         @media (max-width: 768px) {
             .text-5xl {
-                font-size: 2.5rem !important;
+                font-size: 2rem !important;
             }
             
             .text-7xl {
-                font-size: 3rem !important;
+                font-size: 2.5rem !important;
+            }
+
+            h1 span.block {
+                word-break: break-word;
+                hyphens: auto;
             }
         }
     </style>
@@ -227,8 +232,8 @@
 <body class="relative">
     <div id="particles" class="fixed inset-0 pointer-events-none z-0"></div>
     
-    <header class="relative py-8 px-4 z-10">
-        <div class="max-w-7xl mx-auto">
+    <header class="relative py-8 px-4 z-50">
+        <div class="max-w-7xl mx-auto relative">
             <nav class="flex items-center justify-between mb-8">
                 <div class="flex items-center space-x-2 animate-fade-in">
                     <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center">
@@ -244,13 +249,13 @@
                     </button>
                 </div>
                 
-                <button id="menu-toggle" class="md:hidden text-white text-2xl">
+                <button id="menu-toggle" class="md:hidden text-white text-2xl relative z-50 p-2">
                     <i class="fas fa-bars"></i>
                 </button>
             </nav>
             <div id="mobile-menu" class="mobile-menu">
-                <a href="#">Поддержка</a>
-                <a href="#" onclick="document.getElementById('bots').scrollIntoView({behavior: 'smooth'}); document.getElementById('mobile-menu').classList.remove('active');">Начать</a>
+                <a href="#" class="hover:bg-blue-500/20 px-2 rounded transition-colors">Поддержка</a>
+                <a href="#" onclick="document.getElementById('bots').scrollIntoView({behavior: 'smooth'}); document.getElementById('mobile-menu').classList.remove('active');" class="hover:bg-blue-500/20 px-2 rounded transition-colors">Начать</a>
             </div>
         </div>
     </header>
