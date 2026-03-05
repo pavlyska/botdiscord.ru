@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BotDiscordRu | Интеграционные боты для Discord и Telegram</title>
-    <meta name="description" content="Лучшие боты для Discord и Telegram: защита от рейдов, музыкальные боты, бекапы, мониторинг. Мониторинг ботов Discord
+    <title>BotDiscordRu - Интеграционные боты для Discord и Telegram</title>
+    <meta name="description" content="Лучшие интеграционные боты для Discord и Telegram: защита от рейдов, музыкальные боты, бекапы, загрузка видео и уведомления из GitHub. Бесплатное подключение и надежная автоматизация ваших серверов.">
     <meta name="keywords" content="discord боты, telegram боты, антирейд, музыкальный бот, бекап сервера, tiktok скачать, github уведомления, автоматизация discord, защита сервера, боты для сообществ">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -38,7 +38,7 @@
                     },
                     animation: {
                         'float': 'float 6s ease-in-out infinite',
-                        'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1 ) infinite',
                         'gradient': 'gradient 8s ease infinite',
                         'fade-in': 'fadeIn 0.8s ease-out',
                         'slide-up': 'slideUp 0.6s ease-out'
@@ -66,7 +66,7 @@
         }
     </script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap' );
         
         * {
             margin: 0;
@@ -184,13 +184,47 @@
             scroll-behavior: smooth;
         }
 
+        .mobile-menu {
+            display: none;
+        }
+
+        .mobile-menu.active {
+            display: block;
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 0.5rem;
+            padding: 1rem;
+            width: 200px;
+            z-index: 100;
+        }
+
+        .mobile-menu a {
+            display: block;
+            padding: 0.5rem 0;
+            color: #cbd5e1;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .mobile-menu a:hover {
+            color: white;
+        }
+
         @media (max-width: 768px) {
             .text-5xl {
-                font-size: 2.5rem !important;
+                font-size: 2rem !important;
             }
             
             .text-7xl {
-                font-size: 3rem !important;
+                font-size: 2.5rem !important;
+            }
+
+            h1 span.block {
+                word-break: break-word;
+                hyphens: auto;
             }
         }
     </style>
@@ -198,8 +232,8 @@
 <body class="relative">
     <div id="particles" class="fixed inset-0 pointer-events-none z-0"></div>
     
-    <header class="relative py-8 px-4 z-10">
-        <div class="max-w-7xl mx-auto">
+    <header class="relative py-8 px-4 z-50">
+        <div class="max-w-7xl mx-auto relative">
             <nav class="flex items-center justify-between mb-8">
                 <div class="flex items-center space-x-2 animate-fade-in">
                     <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center">
@@ -209,19 +243,20 @@
                 </div>
                 
                 <div class="hidden md:flex items-center space-x-8">
-                    <a href="https://discord.com/invite/t6d8u8JBuy" target="_blank" class="text-gray-300 hover:text-white transition-colors">Поддержка</a>
+                    <a href="https://dsc.gg/antiraidbot" class="text-gray-300 hover:text-white transition-colors">Поддержка</a>
                     <button onclick="document.getElementById('bots').scrollIntoView({behavior: 'smooth'})" class="px-6 py-2 bg-gradient-to-r from-blue-600 to-blue-500 rounded-lg font-semibold hover:from-blue-500 hover:to-blue-400 transition-all duration-300">
                         Начать
                     </button>
                 </div>
                 
-                <div class="md:hidden flex items-center space-x-4">
-                    <a href="https://discord.com/invite/t6d8u8JBuy" target="_blank" class="text-gray-300 hover:text-white transition-colors text-sm">Поддержка</a>
-                    <button onclick="document.getElementById('bots').scrollIntoView({behavior: 'smooth'})" class="px-4 py-2 bg-gradient-to-r from-blue-600 to-blue-500 rounded-lg font-semibold text-sm hover:from-blue-500 hover:to-blue-400 transition-all duration-300">
-                        Начать
-                    </button>
-                </div>
+                <button id="menu-toggle" class="md:hidden text-white text-2xl relative z-50 p-2">
+                    <i class="fas fa-bars"></i>
+                </button>
             </nav>
+            <div id="mobile-menu" class="mobile-menu">
+                <a href="https://dsc.gg/antiraidbot" class="hover:bg-blue-500/20 px-2 rounded transition-colors">Поддержка</a>
+                <a href="#" onclick="document.getElementById('bots').scrollIntoView({behavior: 'smooth'}); document.getElementById('mobile-menu').classList.remove('active');" class="hover:bg-blue-500/20 px-2 rounded transition-colors">Начать</a>
+            </div>
         </div>
     </header>
 
@@ -403,7 +438,7 @@
                     <p class="text-xl text-gray-200 mb-10 max-w-3xl mx-auto">
                         Присоединяйтесь к 1500+ серверам, которые уже используют наших ботов для автоматизации и защиты своих сообществ.
                     </p>
-                    <button onclick="document.getElementById('bots').scrollIntoView({behavior: 'smooth'})" class="px-10 py-4 bg-white text-blue-600 rounded-xl font-bold text-lg hover:bg-blue-50 transition-all duration-300 transform hover:scale-105">
+                    <button onclick="document.getElementById('bots' ).scrollIntoView({behavior: 'smooth'})" class="px-10 py-4 bg-white text-blue-600 rounded-xl font-bold text-lg hover:bg-blue-50 transition-all duration-300 transform hover:scale-105">
                         <i class="fas fa-bolt mr-2"></i>Попробовать бесплатно
                     </button>
                 </div>
@@ -447,7 +482,14 @@
     </footer>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function( ) {
+            const menuToggle = document.getElementById('menu-toggle');
+            const mobileMenu = document.getElementById('mobile-menu');
+            
+            menuToggle.addEventListener('click', function() {
+                mobileMenu.classList.toggle('active');
+            });
+            
             const particlesContainer = document.getElementById('particles');
             
             for (let i = 0; i < 50; i++) {
@@ -490,4 +532,3 @@
     </script>
 </body>
 </html>
-
